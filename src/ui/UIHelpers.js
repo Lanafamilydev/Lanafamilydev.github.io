@@ -1,7 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
-// Monster World V5.1 — UI Helpers Module
-// Toast notifications, battle log, floating damage text
+// Monster World V5.1 Mobile — UI Helpers
+// Toast, battle log (desktop + mobile mirror), cancel sync
 // ═══════════════════════════════════════════════════════════════
+
+import { syncMobLog } from './Renderer.js';
 
 let _toastTimer = null;
 
@@ -15,7 +17,7 @@ export function toast(msg) {
   _toastTimer = setTimeout(() => el.classList.remove('on'), 2800);
 }
 
-/** Add a line to the battle log */
+/** Add a line to the battle log (desktop + mirrors to mobile panel) */
 export function addLog(msg, type = 'ls') {
   const log = document.getElementById('log');
   if (!log) return;
@@ -25,9 +27,11 @@ export function addLog(msg, type = 'ls') {
   log.appendChild(e);
   if (log.children.length > 150) log.children[0].remove();
   log.scrollTop = log.scrollHeight;
+  // Mirror to mobile log panel
+  syncMobLog();
 }
 
-/** Add a turn separator line to the log */
+/** Add a turn separator line */
 export function addLogSep(turn, round) {
   const log = document.getElementById('log');
   if (!log) return;
@@ -39,30 +43,33 @@ export function addLogSep(turn, round) {
   log.appendChild(e);
   if (log.children.length > 150) log.children[0].remove();
   log.scrollTop = log.scrollHeight;
+  syncMobLog();
 }
 
 /** Float damage/heal text over a board cell */
 export function floatTxt(r, c, text, color = '#fff') {
   const bd = document.getElementById('board');
   if (!bd) return;
-  const cells = bd.querySelectorAll('.cell');
-  const G_cols = parseInt(bd.style.gridTemplateColumns?.match(/repeat\((\d+)/)?.[1] || '10');
+  const cells  = bd.querySelectorAll('.cell');
+  const G_cols = parseInt(
+    bd.style.gridTemplateColumns?.match(/repeat\((\d+)/)?.[1] || '10'
+  );
   const idx = r * G_cols + c;
   if (idx >= cells.length) return;
-  const cell = cells[idx];
+  const cell  = cells[idx];
   const rect  = cell.getBoundingClientRect();
   const brect = bd.getBoundingClientRect();
   const el = document.createElement('div');
   el.className = 'df';
   el.textContent = text;
   el.style.color = color;
-  el.style.left = (rect.left - brect.left + rect.width / 2 - 20) + 'px';
-  el.style.top  = (rect.top  - brect.top) + 'px';
+  el.style.left  = (rect.left - brect.left + rect.width / 2 - 20) + 'px';
+  el.style.top   = (rect.top  - brect.top) + 'px';
   bd.appendChild(el);
   setTimeout(() => el.remove(), 1200);
 }
 
-/** Shake the board for dramatic effect */
+/** Shake the board */
 export function shakeBoard() {
   const bd = document.getElementById('board');
   if (!bd) return;
@@ -70,10 +77,19 @@ export function shakeBoard() {
   setTimeout(() => bd.classList.remove('shake'), 520);
 }
 
-/** Show/hide cancel button */
+/**
+ * Show cancel button — targets ALL .cancel-btn-all elements
+ * so both desktop (#cancel-btn) and mobile (#mob-cancel-btn) sync
+ */
 export function showCancel() {
-  document.getElementById('cancel-btn')?.style && (document.getElementById('cancel-btn').style.display = 'block');
+  document.querySelectorAll('.cancel-btn-all').forEach(b => {
+    b.style.display = 'block';
+  });
 }
+
+/** Hide cancel button — syncs both desktop and mobile */
 export function hideCancel() {
-  document.getElementById('cancel-btn')?.style && (document.getElementById('cancel-btn').style.display = 'none');
+  document.querySelectorAll('.cancel-btn-all').forEach(b => {
+    b.style.display = 'none';
+  });
 }
