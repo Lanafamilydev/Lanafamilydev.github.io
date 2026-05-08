@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monster World V5.1 — Ultimate Edition</title>
+<link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     GLOBAL HEADER
+════════════════════════════════════════════ -->
+<div id="g-hdr">
+  <div id="g-title">⚡ MONSTER WORLD V5.1</div>
+  <div id="g-info">
+    <span id="g-name">⚡ Yugi</span>
+    <span id="g-gold">💰 500</span>
+    <span id="g-score">⭐ 0</span>
+  </div>
+  <nav id="tab-nav">
+    <button class="tnb act" id="tn-battle"  onclick="switchTab('battle')">⚔ TRẬN</button>
+    <button class="tnb"     id="tn-shop"    onclick="switchTab('shop')">🏪 SHOP</button>
+    <button class="tnb"     id="tn-storage" onclick="switchTab('storage')">📦 KHO</button>
+    <button class="tnb"     id="tn-care"    onclick="switchTab('care')">💚 CHĂM SÓC</button>
+    <button class="tnb"     id="tn-account" onclick="switchTab('account')">👤 TÀI KHOẢN</button>
+  </nav>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB: BATTLE
+════════════════════════════════════════════ -->
+<div class="tab-panel act" id="tab-battle">
+  <div id="app">
+
+    <!-- LEFT PANEL -->
+    <div id="lp">
+      <div class="ps">
+        <div class="pt">⚡ YUGI</div>
+        <div id="pc"></div>
+      </div>
+
+      <div class="ps" id="obj-wrap">
+        <div class="pt">MỤC TIÊU</div>
+        <div id="obj"></div>
+      </div>
+
+      <div class="ps" style="font-size:9px">
+        <div class="pt">ĐIỂM SỐ</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:#555">Điểm</span>
+            <span id="sc" style="color:var(--gold);font-family:'Orbitron',sans-serif;font-size:10px">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:#555">Round</span>
+            <span id="wv" style="color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:10px">1</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:#555">Tiêu diệt</span>
+            <span id="kl" style="color:var(--red);font-family:'Orbitron',sans-serif;font-size:10px">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="pbtns">
+        <button class="pb pb-end"    onclick="endTurn()">⚡ KẾT THÚC LƯỢT</button>
+        <button class="pb pb-cancel" id="cancel-btn" onclick="cancelAct()" style="display:none">✕ HỦY</button>
+        <button class="pb pb-reset"  onclick="resetGame()">↩ MENU CHẾ ĐỘ</button>
+      </div>
+    </div>
+
+    <!-- CENTER: board + controls -->
+    <div id="ct">
+      <div id="hdr">
+        <h1>⚡ MONSTER WORLD</h1>
+        <div id="turn-banner" class="bp">⚡ LƯỢT YUGI</div>
+        <div id="rl">Round 1</div>
+      </div>
+
+      <div id="combo-wrap">
+        <div id="combo-label">COMBO</div>
+        <div id="combo-track"><div id="combo-fill"></div></div>
+        <div id="combo-num">×1</div>
+        <button id="ulti-btn" onclick="activateUlti()">★ TUYỆT CHIÊU</button>
+      </div>
+
+      <div id="bw">
+        <div id="board" style="grid-template-columns:repeat(10,1fr)"></div>
+        <div id="ai-bar">👺 BAKURA ĐANG SUY NGHĨ...</div>
+      </div>
+
+      <div id="item-bar" class="ps">
+        <div style="font-family:'Orbitron',sans-serif;font-size:8px;color:#444;margin-bottom:4px">VẬT PHẨM TRẬN</div>
+        <div id="item-bar-btns" style="display:flex;flex-wrap:wrap;gap:2px"></div>
+      </div>
+
+      <div id="log"></div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="rp">
+      <div class="ps">
+        <div class="pt">👺 BAKURA</div>
+        <div id="ec"></div>
+      </div>
+
+      <div class="ps" style="flex:1;overflow-y:auto">
+        <div class="pt">THÔNG TIN</div>
+        <div id="ud"></div>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+</div><!-- /#tab-battle -->
+
+<!-- ════════════════════════════════════════════
+     TAB: SHOP
+════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-shop" style="overflow-y:auto">
+  <div id="tab-shop-inner">
+    <div class="shop-title">🏪 CỬA HÀNG</div>
+
+    <div class="shop-section">
+      <h3>🎴 GACHA — MỞ GÓI QUÁI THÚ</h3>
+      <div class="shop-grid">
+        <div class="gacha-card gc-common" onclick="openGacha('common')">
+          <div class="gacha-card-icon">🎴</div>
+          <div class="gacha-card-name">Gói Thường</div>
+          <div class="gacha-card-cost">💰 100 Vàng</div>
+          <div class="gacha-card-desc">Xác suất nhận quái hiếm thấp</div>
+          <div class="gacha-card-rates">C:60% B:30% A:9% S:1%</div>
+        </div>
+        <div class="gacha-card gc-premium" onclick="openGacha('premium')">
+          <div class="gacha-card-icon">💎</div>
+          <div class="gacha-card-name">Gói Premium</div>
+          <div class="gacha-card-cost">💰 500 Vàng</div>
+          <div class="gacha-card-desc">Bảo đảm B+ — cơ hội cao nhận S</div>
+          <div class="gacha-card-rates">B:30% A:50% S:20%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shop-section">
+      <h3>🛒 VẬT PHẨM</h3>
+      <div class="shop-grid" id="item-shop-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB: STORAGE / ROSTER
+════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-storage" style="overflow-y:auto">
+  <div id="tab-storage-inner">
+    <div class="storage-title">📦 KHO ĐỘI HÌNH</div>
+
+    <div class="roster-section">
+      <h3>⚔ ĐỘI HÌNH CHIẾN ĐẤU
+        <span style="font-size:8px;color:#555;font-family:'Rajdhani',sans-serif;font-weight:400">
+          — Tối đa 5 quái, thay đổi có hiệu lực từ trận tiếp theo
+        </span>
+      </h3>
+      <div class="roster-grid" id="roster-display"></div>
+    </div>
+
+    <div class="roster-section">
+      <h3>📦 KHO DỰ BỊ</h3>
+      <div class="bench-grid" id="bench-display"></div>
+    </div>
+
+    <div class="roster-section">
+      <h3>📖 POKEDEX
+        <span style="font-size:9px;color:var(--gold);font-family:'Orbitron',sans-serif">
+          <span id="pdx-owned">0</span>/<span id="pdx-total">0</span>
+        </span>
+      </h3>
+      <div class="pokedex-grid" id="pokedex-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB: CARE
+════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-care" style="overflow-y:auto">
+  <div id="tab-care-inner">
+    <div class="shop-title">💚 CHĂM SÓC QUÁI THÚ</div>
+    <div style="font-size:10px;color:#555;margin-bottom:14px;text-align:center">
+      Cho ăn tăng Thân thiện → Bonus ATK/DEF trong trận · Nghỉ giảm Mệt mỏi → Tăng SPD
+    </div>
+    <div id="care-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TAB: ACCOUNT
+════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-account" style="overflow-y:auto">
+  <div id="tab-account-inner">
+    <div class="shop-title">👤 TÀI KHOẢN</div>
+
+    <div class="acc-section">
+      <h3>THỐNG KÊ NGƯỜI CHƠI</h3>
+      <div id="acc-info"></div>
+    </div>
+
+    <div class="acc-section">
+      <h3>🎒 HÀNH TRANG</h3>
+      <div id="inv-display" style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px"></div>
+    </div>
+
+    <div class="acc-section">
+      <h3>✏ ĐỔI TÊN</h3>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="rename-input" placeholder="Tên mới..." style="flex:1;padding:7px 12px;
+          background:rgba(5,5,20,.9);border:1px solid #333;border-radius:6px;color:#ddd;font-family:'Rajdhani',sans-serif;font-size:13px">
+        <button class="pb pb-end" style="width:auto;padding:7px 16px;font-size:10px"
+          onclick="renamePlayer(document.getElementById('rename-input').value)">Đổi</button>
+      </div>
+    </div>
+
+    <div class="acc-section">
+      <h3>⚠ NGUY HIỂM</h3>
+      <div style="font-size:10px;color:#555;margin-bottom:8px">Xóa toàn bộ dữ liệu — không thể khôi phục!</div>
+      <button class="pb" style="background:rgba(224,48,48,.1);border:1px solid var(--red);color:var(--red);font-size:9px"
+        onclick="if(confirm('Xóa hết dữ liệu?')){localStorage.clear();location.reload()}">
+        🗑 XÓA DỮ LIỆU &amp; CHƠI LẠI
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     OVERLAYS / MODALS
+════════════════════════════════════════════ -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Name modal (first launch) -->
+<div id="name-modal">
+  <div class="nm-title">⚡ MONSTER WORLD V5.1</div>
+  <div class="nm-sub">Ultimate Edition — Nhập tên chiến binh của bạn</div>
+  <input id="nm-input" maxlength="18" placeholder="Nhập tên..." autofocus>
+  <button class="pb pb-end" style="width:220px;font-size:12px;padding:12px"
+    onclick="createAccount()">⚡ BẮT ĐẦU HÀNH TRÌNH</button>
+</div>
+
+<!-- ── Mode Select Overlay ── -->
+<div id="mode-select-overlay">
+  <div class="ms-title">⚡ CHỌN CHẾ ĐỘ CHIẾN ĐẤU</div>
+  <div class="ms-ps">Điểm Sức Mạnh Đội: <span id="mode-ps-value" style="color:var(--gold);font-family:'Orbitron',sans-serif">0</span></div>
+
+  <div class="ms-grid">
+    <!-- Campaign -->
+    <div class="ms-card campaign" onclick="startSession('campaign')">
+      <div class="ms-icon">📖</div>
+      <div class="ms-name">CAMPAIGN</div>
+      <div class="ms-desc">
+        Bản đồ cố định, kẻ địch được thiết kế sẵn.<br>
+        Thắng mỗi tầng nhận <b style="color:var(--gold)">💎 Đá Tiến Hóa</b>.<br>
+        Độ khó tăng dần theo tầng.
+      </div>
+      <div class="ms-detail" id="mode-camp-floor">Tầng 1</div>
+    </div>
+
+    <!-- Endless -->
+    <div class="ms-card endless" onclick="startSession('endless')">
+      <div class="ms-icon">♾</div>
+      <div class="ms-name">ENDLESS</div>
+      <div class="ms-desc">
+        Bản đồ ngẫu nhiên, kẻ địch mạnh dần vô hạn.<br>
+        Sau mỗi tầng chọn <b style="color:var(--cyan)">buff hoặc vật phẩm</b>.<br>
+        Chơi đến khi thua!
+      </div>
+      <div class="ms-detail" id="mode-end-floor">Tầng cao nhất: 0</div>
+    </div>
+
+    <!-- Arena -->
+    <div class="ms-card arena" onclick="startSession('arena')">
+      <div class="ms-icon">⚔</div>
+      <div class="ms-name">ARENA</div>
+      <div class="ms-desc">
+        Địch phản chiếu sức mạnh đội hình của bạn.<br>
+        Thắng +25 Rating · Thua -15 Rating.<br>
+        Thử thách PvP mô phỏng!
+      </div>
+      <div class="ms-detail" id="mode-arena-rating">Rating: 1000</div>
+    </div>
+  </div>
+
+  <button class="evo-close" onclick="hideModeSelect()" style="margin-top:4px">✕ Đóng</button>
+</div>
+
+<!-- ── Endless Reward Overlay ── -->
+<div id="endless-reward-overlay">
+  <div class="erl-title">🏆 TẦNG HOÀN THÀNH — CHỌN PHẦN THƯỞNG!</div>
+  <div style="font-size:10px;color:#555;text-align:center">Chọn 1 trong 3 phần thưởng để tiếp tục</div>
+  <div id="endless-reward-list"></div>
+  <div class="erl-skip" onclick="dismissEndlessReward()">→ Bỏ qua, tiếp tục</div>
+</div>
+
+<!-- ── Evolution Modal ── -->
+<div id="evo-modal">
+  <h2 id="evo-modal-title">✨ TIẾN HÓA</h2>
+  <div class="evo-branches" id="evo-branches"></div>
+  <div class="evo-close" onclick="closeEvoModal()">✕ Hủy</div>
+</div>
+
+<!-- ── Gacha Result Modal ── -->
+<div id="gacha-result">
+  <div id="gacha-res-card"></div>
+  <button class="gr-close" onclick="closeGachaResult()">✓ Xác nhận</button>
+</div>
+
+<!-- ── Game Over Overlay ── -->
+<div id="go-overlay">
+  <div id="go-title">⚡ CHIẾN THẮNG!</div>
+  <div id="go-sub"></div>
+  <div id="go-stats"></div>
+  <div id="go-reward"></div>
+  <div class="go-btns">
+    <button class="go-btn" onclick="resetGame()">↩ MENU CHẾ ĐỘ</button>
+    <button class="go-btn secondary" onclick="closeGameOverGoShop()">🏪 ĐẾN SHOP</button>
+  </div>
+</div>
+
+<!-- ── Ultimate Flash Overlay ── -->
+<div id="ulti-overlay">
+  <div id="ulti-title"></div>
+  <div id="ulti-sub"></div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     ES6 MODULE ENTRY — loads main.js which
+     wires all modules together
+════════════════════════════════════════════ -->
+<script type="module" src="src/main.js"></script>
+
+</body>
+</html>
