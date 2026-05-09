@@ -1,39 +1,49 @@
 // ═══════════════════════════════════════════════════════════════
-// Monster World V5.1 Mobile — Tab Navigation
-// Syncs both desktop tab-nav and mobile bottom nav
+// Monster World V5.1 — Tab Navigation (desktop + mobile synced)
 // ═══════════════════════════════════════════════════════════════
 
 import { P, savePlayer, updateGlobalHeader } from '../core/playerState.js';
 import { toast } from './UIHelpers.js';
 import { renderItemShop } from '../features/Shop.js';
 import { renderRosterTab } from '../features/Roster.js';
-import { closeMobUd } from './Renderer.js';
 
-/** Switch visible tab — syncs desktop tnb + mobile mnb */
+/** Switch visible tab — syncs BOTH desktop .tnb AND mobile .mnb */
 export function switchTab(name) {
-  // Tab panels
+  // ── Panels ──────────────────────────────────────────────────
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('act'));
   document.getElementById('tab-' + name)?.classList.add('act');
 
-  // Desktop tab buttons
+  // ── Desktop tab buttons ──────────────────────────────────────
   document.querySelectorAll('.tnb').forEach(b => b.classList.remove('act'));
   document.getElementById('tn-' + name)?.classList.add('act');
 
-  // Mobile bottom-nav buttons
+  // ── Mobile bottom-nav buttons ────────────────────────────────
   document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
   document.getElementById('mn-' + name)?.classList.add('act');
 
-  // Close mobile unit-detail overlay when leaving battle
-  if (name !== 'battle') closeMobUd();
+  // ── Dismiss mobile overlays when leaving battle ──────────────
+  if (name !== 'battle') {
+    import('./Renderer.js').then(m => m.closeMobUd?.());
+    document.getElementById('mob-log-panel')?.classList.remove('log-open');
+  }
 
-  // Render tab-specific content
+  // ── Body padding: only on mobile ─────────────────────────────
+  // CSS handles this via media query, but JS ensures no stale
+  // inline style from a previous viewport size remains.
+  if (window.innerWidth >= 768) {
+    document.body.style.paddingBottom = '0';
+  } else {
+    document.body.style.paddingBottom = '';  // let CSS media query rule apply
+  }
+
+  // ── Tab content ──────────────────────────────────────────────
   if (name === 'shop')    renderItemShop();
   if (name === 'storage') renderRosterTab();
   if (name === 'account') renderAccountTab();
   if (name === 'care')    renderCareList();
 }
 
-/** Account tab */
+/* ── Account tab ─────────────────────────────────────────────── */
 export function renderAccountTab() {
   const el = document.getElementById('acc-info');
   if (!el) return;
@@ -49,24 +59,20 @@ export function renderAccountTab() {
   renderInventoryDisplay();
 }
 
-/** Monster care tab */
+/* ── Care tab ────────────────────────────────────────────────── */
 export function renderCareList() {
   const el = document.getElementById('care-list');
   if (!el) return;
   el.innerHTML = '';
-
   (P.collection || []).forEach(id => {
     const fat = P.fatigue[id]  || 0;
     const aff = P.affinity[id] || 0;
-
     import('../core/data.js').then(({ UDEFS, GACHA_POOL }) => {
       const def = UDEFS[id] || GACHA_POOL.find(m => m.id === id);
       if (!def) return;
-
       const fatClr  = fat > 80 ? '#ff4444' : fat > 50 ? '#ff8800' : '#888';
       const affClr  = aff >= 80 ? '#44ff88' : aff >= 50 ? '#ffdd00' : '#888';
       const fatDesc = fat > 80 ? '😫 Kiệt sức' : fat > 50 ? '😓 Mệt mỏi' : '😊 Khỏe mạnh';
-
       const card = document.createElement('div');
       card.className = 'care-card';
       card.innerHTML = `
@@ -93,42 +99,38 @@ export function renderCareList() {
           <button class="cbtn${fat===0?' disabled':''}" data-rest="${id}" ${fat===0?'disabled':''}>😴 Nghỉ ngơi</button>
           <button class="cbtn${(P.inventory.food_basic||0)===0?' disabled':''}" data-feed="${id}" ${(P.inventory.food_basic||0)===0?'disabled':''}>🍖 Cho ăn</button>
         </div>`;
-
-      card.querySelector('[data-rest]')?.addEventListener('click', () => restMonster(id));
-      card.querySelector('[data-feed]')?.addEventListener('click', () => feedMonster(id));
+      card.querySelector('[data-rest]')?.addEventListener('click', () => _restMonster(id));
+      card.querySelector('[data-feed]')?.addEventListener('click', () => _feedMonster(id));
       el.appendChild(card);
     });
   });
 }
 
-function restMonster(id) {
+function _restMonster(id) {
   const fat = P.fatigue[id] || 0;
   if (fat === 0) { toast('Quái đang rất khỏe!'); return; }
   const reduced = Math.min(50, fat);
   P.fatigue[id] = Math.max(0, fat - 50);
-  savePlayer();
-  renderCareList();
+  savePlayer(); renderCareList();
   import('../core/data.js').then(({ UDEFS, GACHA_POOL }) => {
     const def = UDEFS[id] || GACHA_POOL.find(m => m.id === id);
     toast(`😴 ${def?.e||''} nghỉ ngơi! −${reduced} Mệt`);
   });
 }
 
-function feedMonster(id) {
+function _feedMonster(id) {
   if ((P.inventory.food_basic || 0) <= 0) { toast('Không có thức ăn! Mua tại Shop.'); return; }
   const aff = P.affinity[id] || 0;
   if (aff >= 100) { toast('Thân thiện đã tối đa!'); return; }
   P.inventory.food_basic--;
   P.affinity[id] = Math.min(100, aff + 10);
-  savePlayer();
-  renderCareList();
-  renderItemShop();
+  savePlayer(); renderCareList(); renderItemShop();
   const newAff = P.affinity[id];
   import('../core/data.js').then(({ UDEFS, GACHA_POOL }) => {
     const def = UDEFS[id] || GACHA_POOL.find(m => m.id === id);
     let msg = `🍖 ${def?.e||''} ${def?.n||''} +10 Thân thiện (${newAff}%)`;
-    if (newAff >= 80) msg += ' ✨ Bonus +7% ATK/DEF!';
-    else if (newAff >= 50) msg += ' ✨ Bonus +3% ATK/DEF';
+    if (newAff >= 80) msg += ' ✨ +7% ATK/DEF!';
+    else if (newAff >= 50) msg += ' ✨ +3% ATK/DEF';
     toast(msg);
   });
 }

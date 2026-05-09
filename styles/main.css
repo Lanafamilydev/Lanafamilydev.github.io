@@ -22,7 +22,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden}
 body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:#ccc;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;padding-bottom:0;
   background-image:radial-gradient(ellipse at 15% 15%,rgba(106,13,173,.2) 0%,transparent 45%),
   radial-gradient(ellipse at 85% 85%,rgba(180,20,40,.15) 0%,transparent 45%)}
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -93,10 +93,7 @@ body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:#ccc;
 #ulti-btn:hover{background:rgba(255,68,255,.25);transform:scale(1.05)}
 @keyframes ulti-pulse{from{box-shadow:0 0 6px var(--ug)}to{box-shadow:0 0 18px var(--ug),0 0 30px rgba(255,68,255,.3)}}
 
-/* Mobile HUD — hidden on desktop */
-#mob-hud{display:none}
-#mob-unit-strip{display:none}
-#mob-actions{display:none}
+
 
 /* ══════════════════════════════════════════════
    BOARD
@@ -539,24 +536,82 @@ body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:#ccc;
 .erl-skip{font-size:10px;color:#444;cursor:pointer;padding:10px 20px;border:1px solid #333;border-radius:8px;transition:all .2s;min-height:40px;touch-action:manipulation}
 .erl-skip:hover{color:#666;border-color:#555}
 
-/* ══════════════════════════════════════════════
-   MOBILE: HIDDEN BY DEFAULT
-══════════════════════════════════════════════ */
-#mob-nav{display:none}
-#mob-log-btn{display:none}
-#mob-log-panel{display:none}
-#mob-ud-overlay{display:none}
+/* ── Mobile-only elements hidden at ALL viewport sizes by default ── */
+#mob-nav,#mob-log-btn,#mob-log-panel,#mob-ud-overlay,
+#mob-hud,#mob-unit-strip,#mob-actions{display:none}
+/* Desktop body: no bottom padding from nav bar */
+body{padding-bottom:0}
+
 
 /* ══════════════════════════════════════════════
    ★★★ MOBILE RESPONSIVE (max-width: 767px) ★★★
 ══════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   DESKTOP GUARD ≥ 768px
+   Hard-hides every mobile-only element. !important ensures
+   this wins over any cascade leak from the mobile block below.
+═══════════════════════════════════════════════════════════════ */
+@media (min-width: 768px){
+
+  /* Hard-hide ALL mobile-only elements */
+  #mob-nav,#mob-log-btn,#mob-log-panel,#mob-ud-overlay,
+  #mob-hud,#mob-unit-strip,#mob-actions{display:none!important}
+
+  /* Body: never pad for bottom nav on desktop */
+  body{padding-bottom:0!important}
+
+  /* Desktop tab nav: always visible */
+  #tab-nav{display:flex!important}
+
+  /* Desktop side panels: always visible */
+  #lp{
+    display:flex!important;
+    border-right:1px solid #1a1a4e;
+    background:rgba(4,4,15,.97);
+    box-shadow:2px 0 12px rgba(0,0,0,.4);
+    min-width:140px;max-width:170px;
+    z-index:10
+  }
+  #rp{
+    display:flex!important;
+    border-left:1px solid #1a1a4e;
+    background:rgba(4,4,15,.97);
+    box-shadow:-2px 0 12px rgba(0,0,0,.4);
+    min-width:180px;max-width:200px;
+    z-index:10
+  }
+
+  /* Desktop battle header + combo bar */
+  #hdr{display:flex!important;z-index:5}
+  #combo-wrap{display:flex!important}
+
+  /* Desktop log + action buttons */
+  #log{display:block!important}
+  #pbtns{display:flex!important}
+
+  /* Max-width container: prevents ultra-wide stretch */
+  #app{
+    max-width:1280px;
+    width:100%;
+    margin:0 auto
+  }
+  #tab-shop-inner,
+  #tab-storage-inner,
+  #tab-care-inner,
+  #tab-account-inner{
+    max-width:1100px;
+    margin:0 auto
+  }
+  #tab-battle{justify-content:center}
+}
+
 @media (max-width: 767px) {
 
   /* ── Body ── */
-  body{
-    /* Reserve space for fixed bottom nav */
-    padding-bottom: var(--mob-nav-h);
-  }
+  body{padding-bottom:var(--mob-nav-h)!important}
+  /* Bottom nav: must sit above board grid and all overlays */
+  #mob-nav{z-index:9999!important}
 
   /* ── Global Header: single tight row ── */
   #g-hdr{
@@ -962,7 +1017,6 @@ body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:#ccc;
      MOBILE: LOG SLIDE-UP PANEL
   ══════════════════════════════════ */
   #mob-log-panel{
-    display: block;
     position: fixed;
     bottom: var(--mob-nav-h);
     left: 0; right: 0;
@@ -1089,14 +1143,17 @@ body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:#ccc;
 
 } /* end @media mobile */
 
-/* ══════════════════════════════════════════════
-   TABLET: 768px – 1024px
-══════════════════════════════════════════════ */
-@media (min-width: 768px) and (max-width: 1024px) {
-  #lp{ width: 130px; min-width: 110px; }
+
   #rp{ width: 160px; min-width: 140px; }
   #board{ max-width: 440px; }
   .evo-branches{ gap: 10px; }
   .evo-branch-card{ min-width: 150px; }
 }
+
+
+/* ══════════════════════════════════════════════
+   DESKTOP SAFETY OVERRIDE (min-width: 768px)
+   Đảm bảo 100% mobile-only elements ẩn trên PC
+   ngay cả khi có specificity hoặc cascade issues
+══════════════════════════════════════════════ */
 

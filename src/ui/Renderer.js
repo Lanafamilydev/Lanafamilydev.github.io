@@ -13,7 +13,9 @@ import { findU } from '../combat/movement.js';
 
 // ── Mobile detection ──────────────────────────────────────────
 export function isMobile() {
-  return window.innerWidth < 768;
+  // visualViewport.width handles mobile browser chrome / keyboard correctly
+  const w = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  return w < 768;
 }
 
 // ── Log badge counter (mobile) ────────────────────────────────
@@ -40,8 +42,12 @@ export function calcBoardSize() {
   const bd = document.getElementById('board');
   if (!bd) return;
   if (!isMobile()) {
-    bd.style.width   = '';
-    bd.style.height  = '';
+    // Desktop: clear any inline dimensions set by a previous mobile session
+    bd.style.width    = '';
+    bd.style.height   = '';
+    bd.style.maxWidth = '520px';
+    // Guarantee body has no bottom padding on desktop
+    document.body.style.paddingBottom = '0';
     return;
   }
   // Available height = viewport - header - bottom nav - hud - strip - actions - itembar - padding
