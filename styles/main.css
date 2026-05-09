@@ -1157,3 +1157,310 @@ body{padding-bottom:0}
    ngay cả khi có specificity hoặc cascade issues
 ══════════════════════════════════════════════ */
 
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE ACTION DRAWER
+   Compact 96px panel — appears at bottom of screen (above nav)
+   when a unit is selected during battle. Replaces full overlay.
+═══════════════════════════════════════════════════════════════ */
+
+/* Hidden on desktop — the @media (min-width:768px) guard above
+   already hides it, but this is a belt-and-suspenders default. */
+#mob-action-drawer { display: none; }
+
+@media (max-width: 767px) {
+
+  /* ── Hide full overlay when Battle tab is active ── */
+  body.tab-battle #mob-ud-overlay { display: none !important; }
+
+  /* ── Drawer: hidden by default, shown when unit selected ── */
+  #mob-action-drawer {
+    display: none;                       /* JS sets to flex when open */
+    position: fixed;
+    bottom: var(--mob-nav-h);            /* sits on top of bottom nav */
+    left: 0; right: 0;
+    height: 96px;
+    z-index: 210;                        /* above board, below modals */
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    background: rgba(5, 5, 15, 0.94);
+    border-top: 2px solid var(--dg);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow: hidden;
+    /* Slide up animation */
+    transform: translateY(0);
+    transition: transform 0.22s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity   0.22s ease;
+  }
+  #mob-action-drawer.open {
+    display: flex;
+    animation: drawer-in 0.22s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+  @keyframes drawer-in {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  /* ── LEFT: unit snapshot (fixed 130px) ── */
+  #mad-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    flex-shrink: 0;
+    width: 134px;
+    overflow: hidden;
+  }
+  #mad-emoji-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  #mad-emoji {
+    font-size: 30px;
+    line-height: 1;
+    filter: drop-shadow(0 0 5px rgba(50,140,255,.7));
+    transition: filter 0.3s;
+  }
+  #mad-emoji.enemy  { filter: drop-shadow(0 0 5px rgba(220,40,60,.7)); }
+  #mad-emoji.evolved{ filter: drop-shadow(0 0 6px var(--gold)) drop-shadow(0 0 14px rgba(255,200,0,.5)); }
+  #mad-lv {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 8px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  #mad-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  #mad-name-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    overflow: hidden;
+  }
+  #mad-name {
+    font-size: 9px;
+    font-weight: 700;
+    color: #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  #mad-elem {
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+  #mad-status-chips {
+    font-size: 8px;
+    line-height: 1;
+    color: #888;
+    min-height: 9px;
+  }
+  /* Mini HP / MP bars */
+  .mad-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 11px;
+  }
+  .mad-bar-label {
+    font-size: 7px;
+    font-family: 'Orbitron', sans-serif;
+    color: #555;
+    width: 12px;
+    flex-shrink: 0;
+  }
+  .mad-bar {
+    flex: 1;
+    height: 5px;
+    background: #111;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid #222;
+  }
+  .mad-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.35s ease;
+  }
+  .mad-hp { background: linear-gradient(90deg, #cc2222, #ff6666); }
+  .mad-mp { background: linear-gradient(90deg, #2255cc, #5599ff); }
+  .mad-bar-val {
+    font-size: 7px;
+    font-family: 'Orbitron', sans-serif;
+    color: #555;
+    min-width: 22px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  /* State badge: shows MOVED / ATK / DONE */
+  #mad-state-badge {
+    font-size: 7px;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+    min-height: 9px;
+  }
+  #mad-state-badge.state-move { color: var(--green); }
+  #mad-state-badge.state-atk  { color: var(--red);   }
+  #mad-state-badge.state-done { color: #444;          }
+  #mad-state-badge.state-enemy{ color: #555;          }
+
+  /* ── DIVIDER ── */
+  .mad-sep {
+    width: 1px;
+    height: 70px;
+    background: #1a1a40;
+    flex-shrink: 0;
+  }
+
+  /* ── MIDDLE: skill chips (horizontal scroll) ── */
+  #mad-skills {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    padding: 0 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    min-width: 0;
+  }
+  #mad-skills::-webkit-scrollbar { display: none; }
+
+  /* Individual skill chip */
+  .mad-skill-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex-shrink: 0;
+    /* Min touch target 44×44px */
+    min-width: 52px;
+    min-height: 72px;
+    padding: 5px 4px;
+    border-radius: 8px;
+    border: 1px solid #2a2a50;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  .mad-skill-chip:active {
+    transform: scale(0.92);
+    background: rgba(204, 68, 255, 0.15);
+  }
+  .mad-skill-chip.chip-active {
+    border-color: var(--purple);
+    background: rgba(204, 68, 255, 0.18);
+    box-shadow: 0 0 8px rgba(204, 68, 255, 0.4);
+  }
+  .mad-skill-chip.chip-nomp {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .mad-skill-chip.chip-ulti {
+    border-color: var(--ulti);
+    background: rgba(255, 68, 255, 0.08);
+  }
+  .mad-skill-chip.chip-ulti:active {
+    background: rgba(255, 68, 255, 0.25);
+  }
+  .mad-chip-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .mad-chip-name {
+    font-size: 7px;
+    font-family: 'Orbitron', sans-serif;
+    color: #ccc;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 48px;
+    text-overflow: ellipsis;
+    letter-spacing: 0.3px;
+  }
+  .mad-chip-cost {
+    font-size: 7px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--blue);
+    white-space: nowrap;
+  }
+  .mad-chip-cost.ulti-cost { color: var(--ulti); }
+  /* Evo chip */
+  .mad-evo-chip {
+    border-color: var(--dg);
+    background: rgba(245, 200, 66, 0.08);
+    animation: evo-btn-pulse 1s infinite alternate;
+  }
+  .mad-evo-chip:active { background: rgba(245, 200, 66, 0.25); }
+
+  /* ── RIGHT: control buttons (Cancel + End Turn) ── */
+  #mad-ctrl {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px 8px 8px 4px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  .mad-ctrl-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 7px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    /* Min 44×44px touch target */
+    min-width: 48px;
+    min-height: 38px;
+    letter-spacing: 0.5px;
+  }
+  .mad-ctrl-btn:active { transform: scale(0.92); }
+  .mad-cancel {
+    background: rgba(224, 48, 48, 0.15);
+    border: 1px solid var(--red);
+    color: var(--red);
+  }
+  .mad-cancel:hover, .mad-cancel:active {
+    background: rgba(224, 48, 48, 0.3);
+  }
+  .mad-end {
+    background: rgba(245, 200, 66, 0.12);
+    border: 1px solid var(--dg);
+    color: var(--gold);
+  }
+  .mad-end:hover, .mad-end:active {
+    background: rgba(245, 200, 66, 0.28);
+    box-shadow: 0 0 8px var(--gg);
+  }
+
+  /* ── Board: add bottom padding when drawer is open ── */
+  /* (calcBoardSize() in JS also accounts for this dynamically) */
+  #bw.drawer-active {
+    padding-bottom: 96px;
+  }
+
+} /* end @media mobile */

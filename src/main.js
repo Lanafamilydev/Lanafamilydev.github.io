@@ -9,7 +9,7 @@ import { renderRosterTab, renderPokedex } from './features/Roster.js';
 import { showEvoModal, closeEvoModal } from './features/Evolution.js';
 import { showModeSelect, hideModeSelect, startSession, dismissEndlessReward } from './systems/SessionManager.js';
 import { endTurn, cancelAct } from './systems/TurnSystem.js';
-import { activateUlti, closeMobUd, toggleMobLog, calcBoardSize, isMobile } from './ui/Renderer.js';
+import { activateUlti, closeMobUd, closeMobDrawer, toggleMobLog, calcBoardSize, isMobile } from './ui/Renderer.js';
 import { createAccount, renamePlayer } from './core/playerState.js';
 
 // ── Expose all functions needed by HTML onclick ───────────────
@@ -28,6 +28,7 @@ window.activateUlti         = activateUlti;
 window.createAccount        = createAccount;
 window.renamePlayer         = renamePlayer;
 window.closeMobUd           = closeMobUd;
+window.closeMobDrawer       = closeMobDrawer;
 window.toggleMobLog         = toggleMobLog;
 
 window.closeGameOverGoShop = () => {
@@ -40,6 +41,7 @@ window.resetGame = () => {
   document.getElementById('evo-modal')?.classList.remove('show');
   document.getElementById('ulti-overlay')?.classList.remove('show');
   document.getElementById('mob-ud-overlay')?.classList.remove('open');
+  closeMobDrawer();
   document.getElementById('mob-log-panel')?.classList.remove('log-open');
   const aiBar = document.getElementById('ai-bar');
   if (aiBar) aiBar.style.display = 'none';
@@ -114,6 +116,7 @@ document.addEventListener('click', e => {
   document.body.style.paddingBottom = window.innerWidth >= 768 ? '0' : '';
 
   switchTab('battle');
+  document.body.classList.add('tab-battle'); // initial state
   setTimeout(() => showModeSelect(), 300);
   calcBoardSize();
 })();

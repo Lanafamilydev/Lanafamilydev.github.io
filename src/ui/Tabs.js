@@ -27,6 +27,16 @@ export function switchTab(name) {
     document.getElementById('mob-log-panel')?.classList.remove('log-open');
   }
 
+  // ── body.tab-{name} class: lets CSS scope rules per active tab
+  document.body.className = document.body.className.replace(/\btab-\S+/g, '').trim();
+  document.body.classList.add('tab-' + name);
+
+  // ── Dismiss mobile overlays / drawer when leaving battle
+  if (name !== 'battle') {
+    import('./Renderer.js').then(m => { m.closeMobUd?.(); m.closeMobDrawer?.(); });
+    document.getElementById('mob-log-panel')?.classList.remove('log-open');
+  }
+
   // ── Body padding: only on mobile ─────────────────────────────
   // CSS handles this via media query, but JS ensures no stale
   // inline style from a previous viewport size remains.

@@ -333,6 +333,53 @@
   </div>
 </div>
 
+
+<!-- ★ MOBILE: Compact Action Drawer (replaces full overlay in battle) -->
+<div id="mob-action-drawer" role="region" aria-label="Action drawer" aria-hidden="true">
+
+  <!-- LEFT: unit snapshot -->
+  <div id="mad-left">
+    <div id="mad-emoji-wrap">
+      <span id="mad-emoji">🦅</span>
+      <span id="mad-lv">L1</span>
+    </div>
+    <div id="mad-info">
+      <div id="mad-name-row">
+        <span id="mad-name">—</span>
+        <span id="mad-elem"></span>
+      </div>
+      <div id="mad-status-chips"></div>
+      <div class="mad-bar-row">
+        <span class="mad-bar-label">HP</span>
+        <div class="mad-bar"><div id="mad-hp-fill" class="mad-fill mad-hp"></div></div>
+        <span id="mad-hp-val" class="mad-bar-val"></span>
+      </div>
+      <div class="mad-bar-row">
+        <span class="mad-bar-label">MP</span>
+        <div class="mad-bar"><div id="mad-mp-fill" class="mad-fill mad-mp"></div></div>
+        <span id="mad-mp-val" class="mad-bar-val"></span>
+      </div>
+      <div id="mad-state-badge"></div>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="mad-sep"></div>
+
+  <!-- MIDDLE: skill chips (horizontal scroll) -->
+  <div id="mad-skills"></div>
+
+  <!-- DIVIDER -->
+  <div class="mad-sep"></div>
+
+  <!-- RIGHT: control buttons -->
+  <div id="mad-ctrl">
+    <button id="mad-cancel-btn" class="mad-ctrl-btn mad-cancel" onclick="cancelAct()">✕</button>
+    <button id="mad-end-btn"    class="mad-ctrl-btn mad-end"    onclick="endTurn()">⚡</button>
+  </div>
+
+</div>
+
 <!-- ★ MOBILE: Floating log button -->
 <button id="mob-log-btn" onclick="toggleMobLog()" title="Nhật ký">📜<span id="mob-log-badge"></span></button>
 
