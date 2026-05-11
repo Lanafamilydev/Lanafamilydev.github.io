@@ -193,6 +193,18 @@
       <h3>📖 POKEDEX <span style="font-size:9px;color:var(--gold);font-family:'Orbitron',sans-serif"><span id="pdx-owned">0</span>/<span id="pdx-total">0</span></span></h3>
       <div class="pokedex-grid" id="pokedex-grid"></div>
     </div>
+
+    <div class="roster-section" id="levelup-section">
+      <h3>🏋 HUẤN LUYỆN — Nâng cấp bằng Vàng
+        <span style="font-size:8px;color:#555;font-family:'Rajdhani',sans-serif;font-weight:400">
+          — LV×50 Vàng/lần · Max LV20
+        </span>
+      </h3>
+      <div class="levelup-hint">
+        💡 Nâng cấp ngay bằng Vàng — không cần chờ trận đấu · Hiệu lực ngay từ trận tiếp theo
+      </div>
+      <div id="levelup-list"></div>
+    </div>
   </div>
 </div>
 
@@ -374,8 +386,8 @@
 
   <!-- RIGHT: control buttons -->
   <div id="mad-ctrl">
-    <button id="mad-cancel-btn" class="mad-ctrl-btn mad-cancel" onclick="cancelAct()">✕</button>
-    <button id="mad-end-btn"    class="mad-ctrl-btn mad-end"    onclick="endTurn()">⚡</button>
+    <button id="mad-cancel-btn" class="mad-ctrl-btn mad-cancel" type="button">✕</button>
+    <button id="mad-end-btn"    class="mad-ctrl-btn mad-end"    type="button">⚡</button>
   </div>
 
 </div>

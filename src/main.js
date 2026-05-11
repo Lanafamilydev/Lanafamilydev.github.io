@@ -6,10 +6,11 @@ import { P, loadPlayer, initFreshPlayer, updateGlobalHeader } from './core/playe
 import { switchTab, renderAccountTab, renderInventoryDisplay } from './ui/Tabs.js';
 import { renderItemShop, openGacha, closeGachaResult } from './features/Shop.js';
 import { renderRosterTab, renderPokedex } from './features/Roster.js';
-import { showEvoModal, closeEvoModal } from './features/Evolution.js';
+import { showEvoModal, closeEvoModal, showEvoModalForRoster } from './features/Evolution.js';
+import { renderLevelUpList, manualLevelUp } from './features/LevelUp.js';
 import { showModeSelect, hideModeSelect, startSession, dismissEndlessReward } from './systems/SessionManager.js';
 import { endTurn, cancelAct } from './systems/TurnSystem.js';
-import { activateUlti, closeMobUd, closeMobDrawer, toggleMobLog, calcBoardSize, isMobile } from './ui/Renderer.js';
+import { activateUlti, closeMobUd, closeMobDrawer, initDrawerBindings, toggleMobLog, calcBoardSize, isMobile } from './ui/Renderer.js';
 import { createAccount, renamePlayer } from './core/playerState.js';
 
 // ── Expose all functions needed by HTML onclick ───────────────
@@ -17,7 +18,10 @@ window.switchTab            = switchTab;
 window.openGacha            = openGacha;
 window.closeGachaResult     = closeGachaResult;
 window.showEvoModal         = showEvoModal;
-window.closeEvoModal        = closeEvoModal;
+window.closeEvoModal           = closeEvoModal;
+window.showEvoModalForRoster   = showEvoModalForRoster;
+window.manualLevelUp           = manualLevelUp;   // belt-and-suspenders backup
+window.renderLevelUpList       = renderLevelUpList;
 window.showModeSelect       = showModeSelect;
 window.hideModeSelect       = hideModeSelect;
 window.startSession         = startSession;
@@ -119,4 +123,7 @@ document.addEventListener('click', e => {
   document.body.classList.add('tab-battle'); // initial state
   setTimeout(() => showModeSelect(), 300);
   calcBoardSize();
+
+  // Bind drawer ctrl buttons once — ES-module safe, no onclick= needed
+  initDrawerBindings();
 })();

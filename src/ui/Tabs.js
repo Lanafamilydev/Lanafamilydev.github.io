@@ -5,6 +5,7 @@
 import { P, savePlayer, updateGlobalHeader } from '../core/playerState.js';
 import { toast } from './UIHelpers.js';
 import { renderItemShop } from '../features/Shop.js';
+import { renderLevelUpList } from '../features/LevelUp.js';
 import { renderRosterTab } from '../features/Roster.js';
 
 /** Switch visible tab — syncs BOTH desktop .tnb AND mobile .mnb */
@@ -48,7 +49,7 @@ export function switchTab(name) {
 
   // ── Tab content ──────────────────────────────────────────────
   if (name === 'shop')    renderItemShop();
-  if (name === 'storage') renderRosterTab();
+  if (name === 'storage') { renderRosterTab(); renderLevelUpList(); }
   if (name === 'account') renderAccountTab();
   if (name === 'care')    renderCareList();
 }

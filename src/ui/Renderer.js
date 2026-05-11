@@ -381,7 +381,7 @@ function _populateMobDrawer(u) {
   if (!drawer) return;
 
   if (!u) {
-    _closeDrawer();
+    closeMobDrawer();
     return;
   }
 
@@ -514,13 +514,33 @@ function _refreshDrawerBars(u) {
 }
 
 function _openDrawer() {
-  if (_drawerOpen) return;
+  if (_drawerOpen || !isMobile()) return;  // belt-and-suspenders: never open on desktop
   _drawerOpen = true;
   const d = document.getElementById('mob-action-drawer');
   if (d) { d.classList.add('open'); d.setAttribute('aria-hidden','false'); }
   const bw = document.getElementById('bw');
   if (bw) bw.classList.add('drawer-active');
   calcBoardSize();
+}
+
+
+/**
+ * Called ONCE at boot (from main.js) to bind the static drawer control buttons.
+ * Using addEventListener instead of onclick= attrs avoids ES-module scope timing
+ * issues and prevents duplicate bindings on re-render.
+ */
+export function initDrawerBindings() {
+  // Cancel button → cancelAct (InputHandler)
+  document.getElementById('mad-cancel-btn')
+    ?.addEventListener('click', () => {
+      import('./InputHandler.js').then(m => m.cancelAct());
+    });
+
+  // End-turn button → endTurn (TurnSystem)
+  document.getElementById('mad-end-btn')
+    ?.addEventListener('click', () => {
+      import('../systems/TurnSystem.js').then(m => m.endTurn());
+    });
 }
 
 export function closeMobDrawer() {

@@ -321,7 +321,7 @@ body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:#ccc;
 /* ══════════════════════════════════════════════
    EVOLUTION MODAL
 ══════════════════════════════════════════════ */
-#evo-modal{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.92);
+#evo-modal{display:none;position:fixed;inset:0;z-index:550;background:rgba(0,0,0,.92);
   align-items:center;justify-content:center;flex-direction:column;gap:14px;overflow-y:auto;padding:20px}
 #evo-modal.show{display:flex}
 #evo-modal h2{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,4vw,28px);color:var(--gold);
@@ -554,9 +554,10 @@ body{padding-bottom:0}
 ═══════════════════════════════════════════════════════════════ */
 @media (min-width: 768px){
 
-  /* Hard-hide ALL mobile-only elements */
+  /* Hard-hide ALL mobile-only elements — includes drawer */
   #mob-nav,#mob-log-btn,#mob-log-panel,#mob-ud-overlay,
-  #mob-hud,#mob-unit-strip,#mob-actions{display:none!important}
+  #mob-hud,#mob-unit-strip,#mob-actions,
+  #mob-action-drawer{display:none!important}
 
   /* Body: never pad for bottom nav on desktop */
   body{padding-bottom:0!important}
@@ -898,6 +899,7 @@ body{padding-bottom:0}
     -webkit-overflow-scrolling: touch;
   }
   #mob-ud-overlay.open{
+    pointer-events: auto;
     transform: translateY(0);
   }
   #mob-ud-drag{
@@ -1181,7 +1183,8 @@ body{padding-bottom:0}
     bottom: var(--mob-nav-h);            /* sits on top of bottom nav */
     left: 0; right: 0;
     height: 96px;
-    z-index: 210;                        /* above board, below modals */
+    z-index: 250;                        /* above board, below modals */
+    pointer-events: auto;                /* explicit: allow all taps */
     flex-direction: row;
     align-items: center;
     gap: 0;
@@ -1464,3 +1467,367 @@ body{padding-bottom:0}
   }
 
 } /* end @media mobile */
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ROSTER EVO BUTTON — shown on eligible cards in Storage tab
+═══════════════════════════════════════════════════════════════ */
+
+/* EVO button (active — LV10 + stone available) */
+.rc-evo-btn {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 7px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid var(--gold);
+  background: linear-gradient(135deg, rgba(30,20,0,.9), rgba(50,35,0,.9));
+  color: var(--gold);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 36px;
+  animation: evo-btn-pulse 1.2s infinite alternate;
+  transition: all .2s;
+}
+.rc-evo-btn:hover, .rc-evo-btn:active {
+  background: rgba(245,200,66,.25);
+  transform: scale(1.02);
+  box-shadow: 0 0 14px var(--gg);
+}
+
+/* EVO info row (locked or need-stone) */
+.rc-evo-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 5px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 8px;
+  font-family: 'Orbitron', sans-serif;
+  line-height: 1.4;
+}
+.rc-evo-info.locked {
+  color: #444;
+  border: 1px solid #222;
+  background: rgba(255,255,255,.03);
+}
+.rc-evo-info.need-stone {
+  color: #aaa;
+  border: 1px solid var(--dg);
+  background: rgba(245,200,66,.06);
+}
+.rc-evo-pct {
+  color: var(--gold);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* EVO done badge */
+.rc-evo-done {
+  margin-top: 5px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 8px;
+  font-family: 'Orbitron', sans-serif;
+  color: var(--gold);
+  border: 1px solid var(--dg);
+  background: rgba(245,200,66,.08);
+  text-align: center;
+  animation: evo-btn-pulse 2s infinite alternate;
+}
+
+/* Roster + bench card wider on mobile to fit EVO row */
+@media (max-width: 767px) {
+  .roster-grid, .bench-grid {
+    grid-template-columns: 1fr;
+  }
+  .roster-card, .bench-card {
+    flex-wrap: wrap;
+    min-height: auto;
+  }
+  .rc-info {
+    width: calc(100% - 50px);
+  }
+  .rc-evo-btn {
+    font-size: 10px;
+    min-height: 44px;
+  }
+  .rc-evo-info {
+    font-size: 9px;
+  }
+
+  /* evo-modal on mobile: full viewport, clear bottom nav */
+  #evo-modal {
+    padding: 8px;
+    gap: 8px;
+    overflow-y: auto;
+    align-items: flex-start;
+    padding-top: 16px;
+    padding-bottom: calc(var(--mob-nav-h) + 16px); /* clear fixed bottom nav */
+  }
+  .evo-branches {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .evo-branch-card {
+    min-width: 0;
+    max-width: 100%;
+    padding: 14px;
+  }
+  .ebc-emoji { font-size: 40px; }
+  .ebc-btn   { min-height: 48px; font-size: 11px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   TRAINING / LEVEL-UP SYSTEM — Monster training cards
+   Location: Storage tab → 🏋 HUẤN LUYỆN section
+═══════════════════════════════════════════════════════════════ */
+
+/* Section hint text */
+.levelup-hint {
+  font-size: 9px;
+  color: #444;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid #1a1a40;
+  border-radius: 5px;
+  line-height: 1.6;
+}
+
+/* Empty state */
+.lvu-empty {
+  color: #444;
+  font-size: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+/* ── Training card ── */
+.lvu-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #1a1a40;
+  border-radius: 8px;
+  background: rgba(5, 5, 20, .85);
+  margin-bottom: 8px;
+  transition: border-color .2s, background .2s;
+}
+.lvu-card:hover {
+  border-color: #2a2a5a;
+  background: rgba(8, 8, 28, .9);
+}
+.lvu-card.lvu-evolved {
+  border-color: var(--dg);
+  background: rgba(10, 8, 2, .9);
+}
+
+/* ── Left: emoji + meta ── */
+.lvu-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.lvu-emoji-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.lvu-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+.lvu-lv {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.lvu-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.lvu-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ddd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lvu-elem {
+  font-size: 9px;
+  font-family: 'Orbitron', sans-serif;
+}
+.lvu-stats-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.lvu-stat {
+  font-size: 9px;
+  color: #777;
+  font-family: 'Orbitron', sans-serif;
+  background: rgba(255,255,255,.04);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+/* EVO badges */
+.lvu-evo-badge {
+  display: inline-block;
+  font-size: 8px;
+  font-family: 'Orbitron', sans-serif;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.lvu-evo-badge.evolved    { color: var(--gold);   border: 1px solid var(--dg);    background: rgba(245,200,66,.08); animation: evo-btn-pulse 2s infinite alternate; }
+.lvu-evo-badge.ready      { color: var(--cyan);   border: 1px solid var(--cyan);  background: rgba(0,229,255,.08);  animation: evo-btn-pulse 1s infinite alternate; }
+.lvu-evo-badge.need-stone { color: #aaa;          border: 1px solid var(--dg);    background: rgba(245,200,66,.05); }
+.lvu-evo-badge.locked     { color: #444;          border: 1px solid #222;         background: rgba(255,255,255,.02); }
+
+/* XP bar (battle-accumulated) */
+.lvu-xp-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+.lvu-xp-label {
+  font-size: 7px;
+  color: #444;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.lvu-xp-track {
+  flex: 1;
+  height: 4px;
+  background: #111;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #1a1a30;
+}
+.lvu-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--dg), var(--gold));
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+.lvu-xp-val {
+  font-size: 7px;
+  color: #444;
+  font-family: 'Orbitron', sans-serif;
+  min-width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Right: cost + button ── */
+.lvu-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+  min-width: 110px;
+}
+.lvu-gain {
+  font-size: 8px;
+  color: var(--green);
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: .3px;
+  text-align: right;
+}
+.lvu-cost {
+  font-size: 10px;
+  color: var(--gold);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  text-align: right;
+}
+.lvu-cost.cant-afford { color: var(--red); }
+
+/* Level-up button */
+.lvu-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid var(--dg);
+  background: linear-gradient(135deg, rgba(245,200,66,.12), rgba(180,100,0,.12));
+  color: var(--gold);
+  letter-spacing: .5px;
+  transition: all .2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 100px;
+  /* Desktop min touch target */
+  min-height: 36px;
+}
+.lvu-btn:hover:not(:disabled),
+.lvu-btn:active:not(:disabled) {
+  background: rgba(245,200,66,.28);
+  box-shadow: 0 0 10px var(--gg);
+  transform: scale(1.03);
+}
+.lvu-btn:disabled { cursor: not-allowed; }
+.lvu-btn.lvu-broke {
+  border-color: var(--red);
+  background: rgba(224,48,48,.08);
+  color: var(--red);
+  opacity: .8;
+}
+.lvu-btn.lvu-maxed {
+  border-color: var(--purple);
+  background: rgba(204,68,255,.08);
+  color: var(--purple);
+  opacity: .7;
+}
+
+/* ── Mobile overrides ── */
+@media (max-width: 767px) {
+  .lvu-card {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+  }
+  .lvu-left  { width: 100%; }
+  .lvu-right {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .lvu-gain  { font-size: 9px; }
+  .lvu-cost  { font-size: 11px; }
+  .lvu-btn {
+    min-height: 44px;   /* iOS touch target */
+    font-size: 10px;
+    padding: 8px 16px;
+    flex: 1;
+    text-align: center;
+  }
+  .levelup-hint { font-size: 10px; }
+}
